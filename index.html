@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Suno AI Music Prompt Generator - 簡単にプロ級のSunoプロンプトを作成">
+    <title>Suno AI プロンプトジェネレーター</title>
+    
+    <style>
+        /* =============================================
+           Design Tokens
+           ============================================= */
+        :root {
+            /* Colors */
+            --color-primary: #00ffcc;
+            --color-secondary: #0099ff;
+            --color-bg: #0a0a0a;
+            --color-surface: #1a1a1a;
+            --color-surface-light: #2a2a2a;
+            --color-surface-lighter: #3a3a3a;
+            --color-text: #e0e0e0;
+            --color-text-muted: #999;
+            --color-border: #333;
+            --color-shadow: rgba(0, 0, 0, 0.5);
+            --color-accent-shadow: rgba(0, 255, 204, 0.3);
+            --color-success: #28ca42;
+            --color-warning: #ffbd2e;
+            --color-error: #ff5f57;
+            
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            
+            /* Layout */
+            --sidebar-width: 280px;
+            --header-height: 80px;
+            
+            /* Animation */
+            --transition: 0.3s ease;
+            
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+        }
+
+        /* =============================================
+           Reset & Base
+           ============================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* =============================================
+           Layout Components
+           ============================================= */
+        .layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .layout__sidebar {
+            width: var(--sidebar-width);
+            background: var(--color-surface);
+            border-right: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            transition: transform var(--transition);
+            overflow-y: auto;
+        }
+
+        .layout__main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--color-bg);
+        }
+
+        /* =============================================
+           Header Components
+           ============================================= */
+        .header {
+            height: var(--header-height);
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-xl);
+        }
+
+        .header__title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header__actions {
+            display: flex;
+            gap: var(--space-md);
+            align-items: center;
+        }
+
+        /* =============================================
+           Sidebar Components
+           ============================================= */
+        .sidebar__header {
+            padding: var(--space-xl) var(--space-lg);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .sidebar__logo {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--color-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .sidebar__subtitle {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+        }
+
+        .sidebar__content {
+            flex: 1;
+            padding: var(--space-lg);
+            overflow-y: auto;
+        }
+
+        /* =============================================
+           Form Components
+           ============================================= */
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-group__label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: var(--space-sm);
+        }
+
+        .form-group__description {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-md);
+            line-height: 1.4;
+        }
+
+        .select-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: var(--space-sm);
+        }
+
+        .select-grid--wide {
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+
+        .option-btn {
+            padding: var(--space-sm) var(--space-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            background: var(--color-surface-light);
+            color: var(--color-text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .option-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-text);
+            background: var(--color-surface-lighter);
+        }
+
+        .option-btn--active {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            border-color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: var(--space-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            background: var(--color-surface-light);
+            color: var(--color-text);
+            font-family: inherit;
+            font-size: 0.875rem;
+            resize: vertical;
+            transition: border-color var(--transition);
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .textarea::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        /* =============================================
+           Button Components
+           ============================================= */
+        .btn {
+            padding: 0.75rem var(--space-lg);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-weight: 500;
+        }
+
+        .btn--primary {
+            background: var(--color-primary);
+            color: var(--color-bg);
+        }
+
+        .btn--primary:hover {
+            background: #00e6b8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--color-accent-shadow);
+        }
+
+        .btn--secondary {
+            background: var(--color-surface-light);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn--secondary:hover {
+            background: var(--color-surface-lighter);
+            border-color: var(--color-text-muted);
+        }
+
+        .btn--clear {
+            background: var(--color-error);
+            color: #fff;
+        }
+
+        .btn--clear:hover {
+            background: #e54e45;
+            transform: translateY(-1px);
+        }
+
+        .btn__icon {
+            width: 1.2em;
+            height: 1.2em;
+        }
+
+        /* =============================================
+           Main Content
+           ============================================= */
+        .main-content {
+            flex: 1;
+            padding: var(--space-xl);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xl);
+        }
+
+        .prompt-display {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .prompt-display__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .prompt-display__title {
+            font-size: 1.25rem;
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        .prompt-display__counter {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            padding: var(--space-xs) var(--space-sm);
+            background: var(--color-surface-light);
+            border-radius: var(--radius-sm);
+        }
+
+        .prompt-display__counter--warning {
+            color: var(--color-warning);
+            background: rgba(255, 189, 46, 0.1);
+        }
+
+        .prompt-display__counter--error {
+            color: var(--color-error);
+            background: rgba(255, 95, 87, 0.1);
+        }
+
+        .prompt-output {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--color-text);
+            min-height: 120px;
+            position: relative;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .prompt-output--empty {
+            color: var(--color-text-muted);
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .prompt-actions {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        /* =============================================
+           Template Gallery
+           ============================================= */
+        .templates {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+        }
+
+        .templates__header {
+            margin-bottom: var(--space-lg);
+        }
+
+        .templates__title {
+            font-size: 1.25rem;
+            color: var(--color-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .templates__grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .template-card {
+            background: var(--color-surface-light);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .template-card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--color-accent-shadow);
+        }
+
+        .template-card__title {
+            color: var(--color-text);
+            font-weight: 500;
+            margin-bottom: var(--space-sm);
+        }
+
+        .template-card__example {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            background: var(--color-bg);
+            padding: var(--space-sm);
+            border-radius: var(--radius-sm);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            line-height: 1.4;
+            margin-bottom: var(--space-sm);
+        }
+
+        .template-card__description {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            line-height: 1.4;
+        }
+
+        /* =============================================
+           Character Counter
+           ============================================= */
+        .char-warning {
+            font-size: 0.75rem;
+            color: var(--color-warning);
+            margin-top: var(--space-xs);
+        }
+
+        .char-error {
+            font-size: 0.75rem;
+            color: var(--color-error);
+            margin-top: var(--space-xs);
+        }
+
+        /* =============================================
+           Advanced Genre Selection
+           ============================================= */
+        .genre-main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
+
+        .genre-main-btn {
+            padding: var(--space-sm) var(--space-md);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
+            background: var(--color-surface-light);
+            color: var(--color-text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-align: center;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .genre-main-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-text);
+            background: var(--color-surface-lighter);
+            transform: translateY(-1px);
+        }
+
+        .genre-main-btn--active {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            border-color: var(--color-primary);
+            box-shadow: 0 2px 8px var(--color-accent-shadow);
+        }
+
+        .genre-sub-section {
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-top: var(--space-md);
+            background: var(--color-bg);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .genre-sub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+            padding-bottom: var(--space-sm);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .genre-sub-title {
+            font-weight: 500;
+            color: var(--color-primary);
+            font-size: 0.9rem;
+        }
+
+        .btn-genre-clear {
+            background: var(--color-error);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition);
+        }
+
+        .btn-genre-clear:hover {
+            background: #e54e45;
+            transform: scale(1.1);
+        }
+
+        .genre-sub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: var(--space-sm);
+        }
+
+        .genre-sub-btn {
+            padding: var(--space-sm);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            background: var(--color-surface);
+            color: var(--color-text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-align: center;
+            position: relative;
+        }
+
+        .genre-sub-btn:hover {
+            border-color: var(--color-secondary);
+            color: var(--color-text);
+            background: var(--color-surface-light);
+        }
+
+        .genre-sub-btn--active {
+            background: var(--color-secondary);
+            color: var(--color-bg);
+            border-color: var(--color-secondary);
+            font-weight: 500;
+        }
+
+        .selected-genres {
+            margin-top: var(--space-md);
+            padding: var(--space-sm);
+            background: var(--color-surface);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-border);
+            min-height: 32px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+            align-items: center;
+        }
+
+        .selected-genres:empty::before {
+            content: "選択されたジャンル: なし";
+            color: var(--color-text-muted);
+            font-size: 0.75rem;
+        }
+
+        .genre-tag {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .genre-tag-remove {
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background var(--transition);
+        }
+
+        .genre-tag-remove:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* =============================================
+           Responsive Design
+           ============================================= */
+        @media (max-width: 768px) {
+            .layout__sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: 200;
+                transform: translateX(-100%);
+            }
+
+            .layout__sidebar--open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                padding: var(--space-md);
+            }
+
+            .select-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .templates__grid {
+                grid-template-columns: 1fr;
+            }
+
+            .prompt-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* =============================================
+           Animations
+           ============================================= */
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* =============================================
+           Utility Classes
+           ============================================= */
+        .text-center {
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .scroll-smooth {
+            scroll-behavior: smooth;
+        }
+
+        /* Mobile overlay */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+        }
+
+        .mobile-overlay--active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="layout__sidebar" id="sidebar">
+            <div class="sidebar__header">
+                <div class="sidebar__logo">🎵 Suno AI</div>
+                <div class="sidebar__subtitle">プロンプトジェネレーター</div>
+            </div>
+            
+            <div class="sidebar__content">
+                <!-- Genre Selection -->
+                <div class="form-group">
+                    <label class="form-group__label">ジャンル</label>
+                    <div class="form-group__description">
+                        メインジャンル選択 → 詳細サブジャンル選択（複数可）
+                    </div>
+                    
+                    <!-- Main Genres -->
+                    <div class="genre-main-grid" id="mainGenreGrid"></div>
+                    
+                    <!-- Sub Genres -->
+                    <div class="genre-sub-section hidden" id="subGenreSection">
+                        <div class="genre-sub-header">
+                            <span class="genre-sub-title" id="subGenreTitle"></span>
+                            <button class="btn-genre-clear" id="clearGenreBtn">×</button>
+                        </div>
+                        <div class="genre-sub-grid" id="subGenreGrid"></div>
+                    </div>
+                    
+                    <!-- Selected Genres Display -->
+                    <div class="selected-genres" id="selectedGenres"></div>
+                </div>
+
+                <!-- Vocal Type -->
+                <div class="form-group">
+                    <label class="form-group__label">ボーカル</label>
+                    <div class="form-group__description">
+                        歌声のタイプと性別を指定
+                    </div>
+                    <div class="select-grid" data-group="vocals">
+                        <button class="option-btn" data-value="male vocals">男性ボーカル</button>
+                        <button class="option-btn" data-value="female vocals">女性ボーカル</button>
+                        <button class="option-btn" data-value="smooth male vocals">スムーズ男性</button>
+                        <button class="option-btn" data-value="soft female vocals">ソフト女性</button>
+                        <button class="option-btn" data-value="powerful vocals">パワフル</button>
+                        <button class="option-btn" data-value="whispered vocals">ささやき声</button>
+                        <button class="option-btn" data-value="harmony vocals">ハーモニー</button>
+                        <button class="option-btn" data-value="duet">デュエット</button>
+                        <button class="option-btn" data-value="choir vocals">コーラス</button>
+                        <button class="option-btn" data-value="raspy vocals">ハスキーボイス</button>
+                    </div>
+                </div>
+
+                <!-- Instruments -->
+                <div class="form-group">
+                    <label class="form-group__label">楽器編成</label>
+                    <div class="form-group__description">
+                        主要楽器を2-3つ選択（推奨）
+                    </div>
+                    <div class="select-grid select-grid--wide" data-group="instruments" data-multi="true">
+                        <button class="option-btn" data-value="acoustic guitar">アコースティックギター</button>
+                        <button class="option-btn" data-value="electric guitar">エレキギター</button>
+                        <button class="option-btn" data-value="piano">ピアノ</button>
+                        <button class="option-btn" data-value="synthesizers">シンセサイザー</button>
+                        <button class="option-btn" data-value="drums">ドラム</button>
+                        <button class="option-btn" data-value="808 drums">808ドラム</button>
+                        <button class="option-btn" data-value="bass">ベース</button>
+                        <button class="option-btn" data-value="strings">ストリングス</button>
+                        <button class="option-btn" data-value="saxophone">サックス</button>
+                        <button class="option-btn" data-value="violin">バイオリン</button>
+                        <button class="option-btn" data-value="electronic beats">エレクトロニック</button>
+                        <button class="option-btn" data-value="ambient pads">アンビエントパッド</button>
+                    </div>
+                </div>
+
+                <!-- Mood -->
+                <div class="form-group">
+                    <label class="form-group__label">ムード・感情</label>
+                    <div class="form-group__description">
+                        楽曲の感情的な方向性
+                    </div>
+                    <div class="select-grid" data-group="mood">
+                        <button class="option-btn" data-value="uplifting">明るく高揚感</button>
+                        <button class="option-btn" data-value="melancholic">憂鬱・メランコリー</button>
+                        <button class="option-btn" data-value="energetic">エネルギッシュ</button>
+                        <button class="option-btn" data-value="nostalgic">ノスタルジック</button>
+                        <button class="option-btn" data-value="romantic">ロマンティック</button>
+                        <button class="option-btn" data-value="dreamy">夢想的</button>
+                        <button class="option-btn" data-value="intimate">親密</button>
+                        <button class="option-btn" data-value="euphoric">陶酔的</button>
+                        <button class="option-btn" data-value="chill">チル・リラックス</button>
+                        <button class="option-btn" data-value="dark">ダーク</button>
+                        <button class="option-btn" data-value="hopeful">希望に満ちた</button>
+                        <button class="option-btn" data-value="triumphant">勝利・triumph</button>
+                    </div>
+                </div>
+
+                <!-- BPM -->
+                <div class="form-group">
+                    <label class="form-group__label">テンポ (BPM)</label>
+                    <div class="form-group__description">
+                        楽曲のテンポを指定
+                    </div>
+                    <div class="select-grid" data-group="bpm">
+                        <button class="option-btn" data-value="70">70 (スロー)</button>
+                        <button class="option-btn" data-value="85">85 (ゆったり)</button>
+                        <button class="option-btn" data-value="95">95 (ほどほど)</button>
+                        <button class="option-btn" data-value="110">110 (アップビート)</button>
+                        <button class="option-btn" data-value="120">120 (ダンス)</button>
+                        <button class="option-btn" data-value="128">128 (クラブ)</button>
+                        <button class="option-btn" data-value="140">140 (ファスト)</button>
+                    </div>
+                </div>
+
+                <!-- Song Length -->
+                <div class="form-group">
+                    <label class="form-group__label">楽曲の長さ</label>
+                    <div class="form-group__description">
+                        楽曲の長さを指定（Suno AIは最大8分まで対応）
+                    </div>
+                    <div class="select-grid" data-group="length">
+                        <button class="option-btn" data-value="short 30 second">ショート (30秒)</button>
+                        <button class="option-btn" data-value="1 minute">1分</button>
+                        <button class="option-btn" data-value="2 minute">2分</button>
+                        <button class="option-btn" data-value="3 minute">3分 (標準)</button>
+                        <button class="option-btn" data-value="4 minute">4分</button>
+                        <button class="option-btn" data-value="5 minute long">5分 (長め)</button>
+                        <button class="option-btn" data-value="6 minute extended">6分 (拡張)</button>
+                        <button class="option-btn" data-value="8 minute epic">8分 (エピック)</button>
+                    </div>
+                </div>
+
+                <!-- Production Style -->
+                <div class="form-group">
+                    <label class="form-group__label">プロダクション</label>
+                    <div class="form-group__description">
+                        音響的な特徴や制作スタイル
+                    </div>
+                    <div class="select-grid" data-group="production">
+                        <button class="option-btn" data-value="warm production">温かい音響</button>
+                        <button class="option-btn" data-value="lo-fi">Lo-fi</button>
+                        <button class="option-btn" data-value="polished">洗練された</button>
+                        <button class="option-btn" data-value="atmospheric">大気的</button>
+                        <button class="option-btn" data-value="vintage">ヴィンテージ</button>
+                        <button class="option-btn" data-value="modern">モダン</button>
+                        <button class="option-btn" data-value="analog warmth">アナログ感</button>
+                        <button class="option-btn" data-value="spacious">広がり感</button>
+                    </div>
+                </div>
+
+                <!-- Custom Text -->
+                <div class="form-group">
+                    <label class="form-group__label">カスタム要素</label>
+                    <div class="form-group__description">
+                        オリジナリティを加える自由記述（オプション）
+                    </div>
+                    <textarea class="textarea" 
+                              id="customText" 
+                              placeholder="例: fingerpicked guitar, campfire atmosphere, vinyl crackle, building to epic climax..."
+                              rows="3"></textarea>
+                    <div class="char-warning hidden" id="customWarning">
+                        カスタム要素が長すぎる可能性があります
+                    </div>
+                </div>
+
+                <!-- Clear All Button -->
+                <div class="form-group">
+                    <button class="btn btn--clear" id="clearAll">
+                        <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18l-2 13H5L3 6zM8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                            <path d="M10 11v6M14 11v6"/>
+                        </svg>
+                        すべてクリア
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile Overlay -->
+        <div class="mobile-overlay" id="overlay"></div>
+
+        <!-- Main Content -->
+        <main class="layout__main">
+            <!-- Header -->
+            <header class="header">
+                <button class="btn btn--secondary" id="menuToggle" style="display: none;">
+                    <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18"/>
+                    </svg>
+                    メニュー
+                </button>
+                <h1 class="header__title">Suno AI プロンプトジェネレーター</h1>
+                <div class="header__actions">
+                    <div class="prompt-display__counter" id="charCounter">0/200文字</div>
+                </div>
+            </header>
+
+            <div class="main-content">
+                <!-- Prompt Display -->
+                <section class="prompt-display">
+                    <div class="prompt-display__header">
+                        <h2 class="prompt-display__title">生成されたプロンプト</h2>
+                    </div>
+                    
+                    <div class="prompt-output" id="promptOutput">
+                        選択肢を組み合わせてプロンプトを作成してください
+                    </div>
+                    
+                    <div class="prompt-actions">
+                        <button class="btn btn--primary" id="copyPrompt">
+                            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                            </svg>
+                            コピー
+                        </button>
+                        <button class="btn btn--secondary" id="downloadPrompt">
+                            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                            </svg>
+                            ダウンロード
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Template Gallery -->
+                <section class="templates">
+                    <div class="templates__header">
+                        <h2 class="templates__title">クイックテンプレート</h2>
+                        <div class="form-group__description">
+                            よく使用されるパターンから素早く開始
+                        </div>
+                    </div>
+                    
+                    <div class="templates__grid" id="templateGrid">
+                        <!-- Templates will be generated by JavaScript -->
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // =============================================
+        // Constants & Data
+        // =============================================
+        const GENRE_STRUCTURE = {
+            'Rock': {
+                label: 'ロック',
+                subgenres: {
+                    'Heavy Metal': 'ヘヴィメタル',
+                    'Progressive Rock': 'プログレッシブロック',
+                    'Classic Rock': 'クラシックロック',
+                    'Hard Rock': 'ハードロック',
+                    'Alternative Rock': 'オルタナティブロック',
+                    'Indie Rock': 'インディーロック',
+                    'Post Rock': 'ポストロック',
+                    'Psychedelic Rock': 'サイケデリックロック'
+                }
+            },
+            'Punk': {
+                label: 'パンク',
+                subgenres: {
+                    'Hardcore': 'ハードコア',
+                    'Melodic Hardcore': 'メロディックハードコア',
+                    'Ska Core': 'スカコア',
+                    'Emotional Core': 'エモーショナルコア',
+                    'Pop Punk': 'ポップパンク',
+                    'Post Hardcore': 'ポストハードコア',
+                    'Metalcore': 'メタルコア',
+                    'Screamo': 'スクリーモ'
+                }
+            },
+            'Electronic': {
+                label: 'エレクトロニック',
+                subgenres: {
+                    'House': 'ハウス',
+                    'Techno': 'テクノ',
+                    'Drum and Bass': 'ドラム&ベース',
+                    'Dubstep': 'ダブステップ',
+                    'Ambient': 'アンビエント',
+                    'IDM': 'IDM',
+                    'Synthwave': 'シンセウェーブ',
+                    'Future Bass': 'フューチャーベース',
+                    'Trance': 'トランス',
+                    'Breakbeat': 'ブレイクビート'
+                }
+            },
+            'Hip Hop': {
+                label: 'ヒップホップ',
+                subgenres: {
+                    'Boom Bap': 'ブームバップ',
+                    'Trap': 'トラップ',
+                    'Lo-Fi Hip Hop': 'ローファイヒップホップ',
+                    'Conscious Rap': 'コンシャスラップ',
+                    'Drill': 'ドリル',
+                    'Cloud Rap': 'クラウドラップ',
+                    'Jazz Rap': 'ジャズラップ',
+                    'Gangsta Rap': 'ギャングスタラップ'
+                }
+            },
+            'Urban': {
+                label: 'アーバン',
+                subgenres: {
+                    'R&B': 'R&B',
+                    'Neo Soul': 'ネオソウル',
+                    'Contemporary R&B': 'コンテンポラリーR&B',
+                    'Trap Soul': 'トラップソウル',
+                    'Alternative R&B': 'オルタナティブR&B',
+                    'Future R&B': 'フューチャーR&B'
+                }
+            },
+            'Pop': {
+                label: 'ポップ',
+                subgenres: {
+                    'Indie Pop': 'インディーポップ',
+                    'Synth Pop': 'シンセポップ',
+                    'Electro Pop': 'エレクトロポップ',
+                    'Dream Pop': 'ドリームポップ',
+                    'Bedroom Pop': 'ベッドルームポップ',
+                    'Art Pop': 'アートポップ',
+                    'Bubblegum Pop': 'バブルガムポップ'
+                }
+            },
+            'EURO': {
+                label: 'ユーロ',
+                subgenres: {
+                    'Eurodance': 'ユーロダンス',
+                    'Eurobeat': 'ユーロビート',
+                    'Euro House': 'ユーロハウス',
+                    'Euro Trance': 'ユーロトランス',
+                    'Italo Disco': 'イタロディスコ',
+                    'Hi-NRG': 'ハイエナジー'
+                }
+            },
+            'Jazz': {
+                label: 'ジャズ',
+                subgenres: {
+                    'Smooth Jazz': 'スムースジャズ',
+                    'Bebop': 'ビバップ',
+                    'Cool Jazz': 'クールジャズ',
+                    'Free Jazz': 'フリージャズ',
+                    'Fusion': 'フュージョン',
+                    'Acid Jazz': 'アシッドジャズ',
+                    'Nu Jazz': 'ニュージャズ'
+                }
+            },
+            'Folk': {
+                label: 'フォーク',
+                subgenres: {
+                    'Indie Folk': 'インディーフォーク',
+                    'Folk Rock': 'フォークロック',
+                    'Acoustic': 'アコースティック',
+                    'Americana': 'アメリカーナ',
+                    'Singer-Songwriter': 'シンガーソングライター',
+                    'Neo Folk': 'ネオフォーク'
+                }
+            },
+            'World': {
+                label: 'ワールドミュージック',
+                subgenres: {
+                    'Latin': 'ラテン',
+                    'Reggae': 'レゲエ',
+                    'Afrobeat': 'アフロビート',
+                    'Bossa Nova': 'ボサノヴァ',
+                    'Flamenco': 'フラメンコ',
+                    'Celtic': 'ケルト',
+                    'Indian Classical': 'インド古典音楽'
+                }
+            }
+        };
+
+        const TEMPLATES = [
+            {
+                title: "ポップバラード",
+                example: "Dream Pop ballad, tender female vocals, soft piano and strings, intimate and heartfelt, 3 minute, 75",
+                selections: {
+                    genres: ["Dream Pop"],
+                    vocals: "soft female vocals",
+                    instruments: ["piano", "strings"],
+                    mood: "romantic",
+                    length: "3 minute",
+                    bpm: "75",
+                    production: "warm production"
+                }
+            },
+            {
+                title: "エネルギッシュダンス",
+                example: "House Electronic, powerful female vocals, 808 drums and synthesizers, euphoric and energetic, 128",
+                selections: {
+                    genres: ["House"],
+                    vocals: "powerful vocals",
+                    instruments: ["808 drums", "synthesizers"],
+                    mood: "euphoric",
+                    bpm: "128",
+                    production: "modern"
+                }
+            },
+            {
+                title: "チルインディー",
+                example: "Indie Folk, soft male vocals, acoustic guitar, nostalgic and dreamy, 85",
+                selections: {
+                    genres: ["Indie Folk"],
+                    vocals: "smooth male vocals", 
+                    instruments: ["acoustic guitar"],
+                    mood: "nostalgic",
+                    bpm: "85",
+                    production: "lo-fi"
+                }
+            },
+            {
+                title: "ハードコアパンク",
+                example: "Hardcore Punk, aggressive male vocals, electric guitar and drums, energetic and rebellious, 140",
+                selections: {
+                    genres: ["Hardcore"],
+                    vocals: "male vocals",
+                    instruments: ["electric guitar", "drums"],
+                    mood: "energetic",
+                    bpm: "140",
+                    production: "polished"
+                }
+            },
+            {
+                title: "メタルコア",
+                example: "Metalcore, powerful screaming vocals, electric guitar and 808 drums, dark and intense, 130",
+                selections: {
+                    genres: ["Metalcore"],
+                    vocals: "powerful vocals",
+                    instruments: ["electric guitar", "808 drums"],
+                    mood: "dark",
+                    bpm: "130",
+                    production: "modern"
+                }
+            },
+            {
+                title: "ユーロダンス",
+                example: "Eurodance, euphoric female vocals, synthesizers and electronic beats, uplifting and energetic, 128",
+                selections: {
+                    genres: ["Eurodance"],
+                    vocals: "female vocals",
+                    instruments: ["synthesizers", "electronic beats"],
+                    mood: "euphoric",
+                    bpm: "128",
+                    production: "polished"
+                }
+            }
+        ];
+
+        // =============================================
+        // State Management
+        // =============================================
+        const state = {
+            selections: {
+                genres: [], // Changed from genre to genres array
+                vocals: null,
+                instruments: [],
+                mood: null,
+                bpm: null,
+                length: null,
+                production: null
+            },
+            genreState: {
+                activeMainGenre: null,
+                selectedSubGenres: []
+            },
+            customText: ''
+        };
+
+        // =============================================
+        // DOM References
+        // =============================================
+        const dom = {
+            sidebar: document.getElementById('sidebar'),
+            overlay: document.getElementById('overlay'),
+            menuToggle: document.getElementById('menuToggle'),
+            promptOutput: document.getElementById('promptOutput'),
+            charCounter: document.getElementById('charCounter'),
+            copyPrompt: document.getElementById('copyPrompt'),
+            downloadPrompt: document.getElementById('downloadPrompt'),
+            clearAll: document.getElementById('clearAll'),
+            customText: document.getElementById('customText'),
+            customWarning: document.getElementById('customWarning'),
+            templateGrid: document.getElementById('templateGrid'),
+            // New genre elements
+            mainGenreGrid: document.getElementById('mainGenreGrid'),
+            subGenreSection: document.getElementById('subGenreSection'),
+            subGenreTitle: document.getElementById('subGenreTitle'),
+            subGenreGrid: document.getElementById('subGenreGrid'),
+            clearGenreBtn: document.getElementById('clearGenreBtn'),
+            selectedGenres: document.getElementById('selectedGenres')
+        };
+
+        // =============================================
+        // Initialization
+        // =============================================
+        function init() {
+            setupEventListeners();
+            renderTemplates();
+            renderMainGenres();
+            updatePrompt();
+            handleResize();
+        }
+
+        function setupEventListeners() {
+            // Selection buttons (non-genre)
+            document.querySelectorAll('[data-group]:not([data-group="genre"])').forEach(group => {
+                group.addEventListener('click', handleSelection);
+            });
+
+            // Genre events
+            dom.mainGenreGrid.addEventListener('click', handleMainGenreClick);
+            dom.subGenreGrid.addEventListener('click', handleSubGenreClick);
+            dom.clearGenreBtn?.addEventListener('click', clearGenreSelection);
+
+            // Custom text
+            dom.customText.addEventListener('input', handleCustomText);
+
+            // Actions
+            dom.copyPrompt.addEventListener('click', copyPrompt);
+            dom.downloadPrompt.addEventListener('click', downloadPrompt);
+            dom.clearAll.addEventListener('click', clearAll);
+
+            // Mobile menu
+            dom.menuToggle?.addEventListener('click', toggleSidebar);
+            dom.overlay.addEventListener('click', closeSidebar);
+
+            // Window resize
+            window.addEventListener('resize', handleResize);
+
+            // Template clicks
+            dom.templateGrid.addEventListener('click', handleTemplateClick);
+        }
+
+        function handleSelection(e) {
+            const btn = e.target.closest('.option-btn');
+            if (!btn) return;
+
+            const group = e.currentTarget;
+            const groupName = group.dataset.group;
+            const value = btn.dataset.value;
+            const isMulti = group.dataset.multi === 'true';
+
+            if (isMulti) {
+                // Multi-select for instruments
+                btn.classList.toggle('option-btn--active');
+                
+                if (btn.classList.contains('option-btn--active')) {
+                    if (!state.selections[groupName].includes(value)) {
+                        state.selections[groupName].push(value);
+                    }
+                } else {
+                    state.selections[groupName] = state.selections[groupName].filter(v => v !== value);
+                }
+            } else {
+                // Single select
+                group.querySelectorAll('.option-btn').forEach(b => b.classList.remove('option-btn--active'));
+                btn.classList.add('option-btn--active');
+                state.selections[groupName] = value;
+            }
+
+            updatePrompt();
+        }
+
+        function handleCustomText(e) {
+            state.customText = e.target.value;
+            
+            // Show warning if custom text is too long
+            const charCount = state.customText.length;
+            if (charCount > 50) {
+                dom.customWarning.classList.remove('hidden');
+            } else {
+                dom.customWarning.classList.add('hidden');
+            }
+
+            updatePrompt();
+        }
+
+        // =============================================
+        // Advanced Genre Handling
+        // =============================================
+        function renderMainGenres() {
+            dom.mainGenreGrid.innerHTML = '';
+            
+            Object.entries(GENRE_STRUCTURE).forEach(([genreKey, genreData]) => {
+                const btn = document.createElement('button');
+                btn.className = 'genre-main-btn';
+                btn.dataset.genre = genreKey;
+                btn.textContent = genreData.label;
+                
+                if (state.genreState.activeMainGenre === genreKey) {
+                    btn.classList.add('genre-main-btn--active');
+                }
+                
+                dom.mainGenreGrid.appendChild(btn);
+            });
+        }
+
+        function handleMainGenreClick(e) {
+            const btn = e.target.closest('.genre-main-btn');
+            if (!btn) return;
+
+            const genreKey = btn.dataset.genre;
+            
+            // Toggle main genre selection
+            if (state.genreState.activeMainGenre === genreKey) {
+                // Clicking same genre - close sub genre section
+                clearGenreSelection();
+                return;
+            }
+
+            // Set active main genre
+            state.genreState.activeMainGenre = genreKey;
+            
+            // Update UI
+            renderMainGenres();
+            renderSubGenres(genreKey);
+            showSubGenreSection(genreKey);
+        }
+
+        function showSubGenreSection(genreKey) {
+            const genreData = GENRE_STRUCTURE[genreKey];
+            dom.subGenreTitle.textContent = genreData.label;
+            dom.subGenreSection.classList.remove('hidden');
+        }
+
+        function renderSubGenres(genreKey) {
+            dom.subGenreGrid.innerHTML = '';
+            const subgenres = GENRE_STRUCTURE[genreKey].subgenres;
+            
+            Object.entries(subgenres).forEach(([subgenreKey, subgenreLabel]) => {
+                const btn = document.createElement('button');
+                btn.className = 'genre-sub-btn';
+                btn.dataset.subgenre = subgenreKey;
+                btn.textContent = subgenreLabel;
+                
+                // Check if already selected
+                if (state.genreState.selectedSubGenres.includes(subgenreKey)) {
+                    btn.classList.add('genre-sub-btn--active');
+                }
+                
+                dom.subGenreGrid.appendChild(btn);
+            });
+        }
+
+        function handleSubGenreClick(e) {
+            const btn = e.target.closest('.genre-sub-btn');
+            if (!btn) return;
+
+            const subgenreKey = btn.dataset.subgenre;
+            
+            // Toggle sub genre
+            const index = state.genreState.selectedSubGenres.indexOf(subgenreKey);
+            if (index === -1) {
+                // Add to selection
+                state.genreState.selectedSubGenres.push(subgenreKey);
+                btn.classList.add('genre-sub-btn--active');
+            } else {
+                // Remove from selection
+                state.genreState.selectedSubGenres.splice(index, 1);
+                btn.classList.remove('genre-sub-btn--active');
+            }
+
+            // Update genres array for prompt generation
+            updateGenresSelection();
+            updateSelectedGenresDisplay();
+            updatePrompt();
+        }
+
+        function updateGenresSelection() {
+            state.selections.genres = [...state.genreState.selectedSubGenres];
+        }
+
+        function updateSelectedGenresDisplay() {
+            dom.selectedGenres.innerHTML = '';
+            
+            state.genreState.selectedSubGenres.forEach(genreKey => {
+                const tag = document.createElement('div');
+                tag.className = 'genre-tag';
+                
+                // Find label from structure
+                let label = genreKey;
+                for (const [mainKey, mainData] of Object.entries(GENRE_STRUCTURE)) {
+                    if (mainData.subgenres[genreKey]) {
+                        label = mainData.subgenres[genreKey];
+                        break;
+                    }
+                }
+                
+                tag.innerHTML = `
+                    ${label}
+                    <button class="genre-tag-remove" data-remove-genre="${genreKey}">×</button>
+                `;
+                
+                // Add remove handler
+                const removeBtn = tag.querySelector('.genre-tag-remove');
+                removeBtn.addEventListener('click', () => removeGenreTag(genreKey));
+                
+                dom.selectedGenres.appendChild(tag);
+            });
+        }
+
+        function removeGenreTag(genreKey) {
+            const index = state.genreState.selectedSubGenres.indexOf(genreKey);
+            if (index !== -1) {
+                state.genreState.selectedSubGenres.splice(index, 1);
+                
+                // Update sub genre grid if currently showing
+                if (state.genreState.activeMainGenre) {
+                    renderSubGenres(state.genreState.activeMainGenre);
+                }
+                
+                updateGenresSelection();
+                updateSelectedGenresDisplay();
+                updatePrompt();
+            }
+        }
+
+        function clearGenreSelection() {
+            state.genreState.activeMainGenre = null;
+            state.genreState.selectedSubGenres = [];
+            state.selections.genres = [];
+            
+            dom.subGenreSection.classList.add('hidden');
+            renderMainGenres();
+            updateSelectedGenresDisplay();
+            updatePrompt();
+        }
+
+        // Simple Japanese to English translation for common music terms
+        function translateToEnglish(japaneseText) {
+            if (!japaneseText || japaneseText.trim() === '') return '';
+            
+            const translations = {
+                // 楽器
+                'フィンガーピッキングギター': 'fingerpicked guitar',
+                'フィンガーピッキング': 'fingerpicked',
+                'アコギ': 'acoustic guitar',
+                'エレキギター': 'electric guitar',
+                'ピアノ': 'piano',
+                'ドラム': 'drums',
+                'ベース': 'bass',
+                'ストリングス': 'strings',
+                'バイオリン': 'violin',
+                'サックス': 'saxophone',
+                'シンセ': 'synthesizer',
+                
+                // 雰囲気・スタイル
+                'キャンプファイヤー': 'campfire',
+                'キャンプファイヤー的': 'campfire',
+                'アットホーム': 'cozy',
+                '温かい': 'warm',
+                '冷たい': 'cold',
+                'クール': 'cool',
+                'ホット': 'hot',
+                '静寂': 'quiet',
+                '騒がしい': 'noisy',
+                'ダーク': 'dark',
+                '明るい': 'bright',
+                '重い': 'heavy',
+                '軽い': 'light',
+                '深い': 'deep',
+                '浅い': 'shallow',
+                
+                // 音響効果
+                'ビニールクラックル': 'vinyl crackle',
+                'ビニール': 'vinyl',
+                'クラックル': 'crackle',
+                'リバーブ': 'reverb',
+                'エコー': 'echo',
+                'ディストーション': 'distortion',
+                'フィルター': 'filter',
+                'コーラス': 'chorus',
+                'ディレイ': 'delay',
+                
+                // 構成・展開
+                '徐々に': 'gradually',
+                'だんだん': 'gradually',
+                'ゆっくり': 'slowly',
+                '急に': 'suddenly',
+                '突然': 'suddenly',
+                '壮大': 'epic',
+                'エピック': 'epic',
+                'クライマックス': 'climax',
+                '盛り上がり': 'build-up',
+                'ビルドアップ': 'build-up',
+                'ブレイクダウン': 'breakdown',
+                'フェードイン': 'fade in',
+                'フェードアウト': 'fade out',
+                
+                // 感情・ムード
+                'ノスタルジック': 'nostalgic',
+                'メランコリー': 'melancholic',
+                '悲しい': 'sad',
+                '嬉しい': 'happy',
+                '楽しい': 'joyful',
+                'エモい': 'emotional',
+                'エモーショナル': 'emotional',
+                'ドラマチック': 'dramatic',
+                'シネマティック': 'cinematic',
+                'ロマンチック': 'romantic',
+                '情熱的': 'passionate',
+                '穏やか': 'peaceful',
+                '激しい': 'intense',
+                
+                // 時間・テンポ
+                '速い': 'fast',
+                '遅い': 'slow',
+                'アップテンポ': 'upbeat',
+                'スローテンポ': 'slow tempo',
+                'ミドルテンポ': 'moderate tempo',
+                
+                // その他よく使われる表現
+                '〜のような': 'like',
+                '〜っぽい': 'style',
+                '〜風': 'style',
+                '雰囲気': 'atmosphere',
+                '感じ': 'feel',
+                'イメージ': 'image',
+                'テイスト': 'taste',
+                'フィーリング': 'feeling',
+                '空気感': 'vibe',
+                'バイブス': 'vibes',
+                '質感': 'texture',
+                '奥行き': 'depth',
+                '広がり': 'spacious',
+                '立体感': 'dimensional'
+            };
+            
+            let translatedText = japaneseText;
+            
+            // Replace known translations
+            Object.entries(translations).forEach(([japanese, english]) => {
+                const regex = new RegExp(japanese, 'gi');
+                translatedText = translatedText.replace(regex, english);
+            });
+            
+            // Handle common particles and connecting words
+            translatedText = translatedText
+                .replace(/、/g, ', ')
+                .replace(/。/g, '. ')
+                .replace(/へ$/g, '')
+                .replace(/に$/g, '')
+                .replace(/を$/g, '')
+                .replace(/が$/g, '')
+                .replace(/の$/g, '')
+                .replace(/と$/g, ' and ')
+                .replace(/や$/g, ' and ')
+                .replace(/から$/g, ' from ')
+                .replace(/まで$/g, ' to ')
+                .replace(/\s+/g, ' ')
+                .trim();
+            
+            // If still contains Japanese characters, return original with a note
+            const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(translatedText);
+            if (hasJapanese && translatedText !== japaneseText) {
+                // Partial translation - return what we could translate
+                return translatedText;
+            } else if (hasJapanese) {
+                // No translation found - return original
+                return japaneseText;
+            }
+            
+            return translatedText;
+        }
+
+        function handleTemplateClick(e) {
+            const card = e.target.closest('.template-card');
+            if (!card) return;
+
+            const templateIndex = parseInt(card.dataset.template);
+            const template = TEMPLATES[templateIndex];
+            
+            applyTemplate(template);
+        }
+
+        function applyTemplate(template) {
+            // Clear current selections
+            document.querySelectorAll('.option-btn--active').forEach(btn => {
+                btn.classList.remove('option-btn--active');
+            });
+
+            // Clear genre selections
+            clearGenreSelection();
+
+            // Reset state
+            state.selections = {
+                genres: [],
+                vocals: null,
+                instruments: [],
+                mood: null,
+                bpm: null,
+                length: null,
+                production: null
+            };
+
+            // Apply template selections
+            Object.entries(template.selections).forEach(([key, value]) => {
+                if (key === 'genres' && Array.isArray(value)) {
+                    // Handle genres specially
+                    value.forEach(genreKey => {
+                        // Find the main genre category for this subgenre
+                        for (const [mainKey, mainData] of Object.entries(GENRE_STRUCTURE)) {
+                            if (mainData.subgenres[genreKey]) {
+                                // Set active main genre and add subgenre
+                                state.genreState.activeMainGenre = mainKey;
+                                state.genreState.selectedSubGenres.push(genreKey);
+                                break;
+                            }
+                        }
+                    });
+                    
+                    // Update UI
+                    if (state.genreState.activeMainGenre) {
+                        renderMainGenres();
+                        renderSubGenres(state.genreState.activeMainGenre);
+                        showSubGenreSection(state.genreState.activeMainGenre);
+                    }
+                    updateGenresSelection();
+                    updateSelectedGenresDisplay();
+                    
+                } else if (key === 'instruments' && Array.isArray(value)) {
+                    // Instruments
+                    state.selections[key] = [...value];
+                    value.forEach(instrument => {
+                        const btn = document.querySelector(`[data-group="${key}"] [data-value="${instrument}"]`);
+                        if (btn) btn.classList.add('option-btn--active');
+                    });
+                } else if (key !== 'genres') {
+                    // Single values (excluding genres)
+                    state.selections[key] = value;
+                    const btn = document.querySelector(`[data-group="${key}"] [data-value="${value}"]`);
+                    if (btn) btn.classList.add('option-btn--active');
+                }
+            });
+
+            updatePrompt();
+            
+            // Add visual feedback
+            const card = event.target.closest('.template-card');
+            card.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                card.style.transform = '';
+            }, 150);
+        }
+
+        // =============================================
+        // Prompt Generation
+        // =============================================
+        function generatePrompt() {
+            const parts = [];
+            
+            // Genres (multiple)
+            if (state.selections.genres && state.selections.genres.length > 0) {
+                if (state.selections.genres.length === 1) {
+                    parts.push(state.selections.genres[0]);
+                } else {
+                    // Combine multiple genres intelligently
+                    parts.push(state.selections.genres.slice(0, 3).join(' '));
+                }
+            }
+
+            // Vocals
+            if (state.selections.vocals) {
+                parts.push(state.selections.vocals);
+            }
+
+            // Instruments (limit to 3 for brevity)
+            if (state.selections.instruments.length > 0) {
+                const instruments = state.selections.instruments.slice(0, 3);
+                parts.push(instruments.join(' and '));
+            }
+
+            // Mood
+            if (state.selections.mood) {
+                parts.push(`${state.selections.mood}`);
+            }
+
+            // Production
+            if (state.selections.production) {
+                parts.push(state.selections.production);
+            }
+
+            // Length
+            if (state.selections.length) {
+                parts.push(state.selections.length);
+            }
+
+            // BPM (at the end)
+            if (state.selections.bpm) {
+                parts.push(state.selections.bpm);
+            }
+
+            // Custom text (keep as is)
+            if (state.customText.trim()) {
+                parts.push(state.customText.trim());
+            }
+
+            return parts.join(', ');
+        }
+
+        function updatePrompt() {
+            const prompt = generatePrompt();
+            const charCount = prompt.length;
+            
+            // Update prompt display
+            if (prompt) {
+                dom.promptOutput.textContent = prompt;
+                dom.promptOutput.classList.remove('prompt-output--empty');
+            } else {
+                dom.promptOutput.textContent = '選択肢を組み合わせてプロンプトを作成してください';
+                dom.promptOutput.classList.add('prompt-output--empty');
+            }
+
+            // Update character counter
+            dom.charCounter.textContent = `${charCount}/200文字`;
+            dom.charCounter.classList.remove('prompt-display__counter--warning', 'prompt-display__counter--error');
+            
+            if (charCount > 200) {
+                dom.charCounter.classList.add('prompt-display__counter--error');
+            } else if (charCount > 180) {
+                dom.charCounter.classList.add('prompt-display__counter--warning');
+            }
+
+            // Update copy button state
+            dom.copyPrompt.disabled = !prompt;
+            dom.downloadPrompt.disabled = !prompt;
+        }
+
+        // =============================================
+        // Actions
+        // =============================================
+        async function copyPrompt() {
+            const prompt = generatePrompt();
+            if (!prompt) return;
+
+            try {
+                await navigator.clipboard.writeText(prompt);
+                
+                // Visual feedback
+                const originalText = dom.copyPrompt.innerHTML;
+                dom.copyPrompt.innerHTML = `
+                    <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                    コピー完了
+                `;
+                
+                setTimeout(() => {
+                    dom.copyPrompt.innerHTML = originalText;
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = prompt;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                alert('プロンプトをクリップボードにコピーしました');
+            }
+        }
+
+        function downloadPrompt() {
+            const prompt = generatePrompt();
+            if (!prompt) return;
+
+            const blob = new Blob([prompt], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `suno-prompt-${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAll() {
+            // Clear UI selections
+            document.querySelectorAll('.option-btn--active').forEach(btn => {
+                btn.classList.remove('option-btn--active');
+            });
+
+            // Clear genre selection
+            clearGenreSelection();
+
+            // Clear state
+            state.selections = {
+                genres: [],
+                vocals: null,
+                instruments: [],
+                mood: null,
+                bpm: null,
+                length: null,
+                production: null
+            };
+            state.customText = '';
+
+            // Clear custom text
+            dom.customText.value = '';
+            dom.customWarning.classList.add('hidden');
+
+            updatePrompt();
+        }
+
+        // =============================================
+        // Template Rendering
+        // =============================================
+        function renderTemplates() {
+            dom.templateGrid.innerHTML = '';
+            
+            TEMPLATES.forEach((template, index) => {
+                const card = document.createElement('div');
+                card.className = 'template-card fade-in';
+                card.dataset.template = index;
+                
+                card.innerHTML = `
+                    <h3 class="template-card__title">${template.title}</h3>
+                    <div class="template-card__example">${template.example}</div>
+                    <div class="template-card__description">クリックして適用</div>
+                `;
+                
+                dom.templateGrid.appendChild(card);
+            });
+        }
+
+        // =============================================
+        // Mobile Responsive
+        // =============================================
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                dom.menuToggle.style.display = 'inline-flex';
+            } else {
+                dom.menuToggle.style.display = 'none';
+                closeSidebar();
+            }
+        }
+
+        function toggleSidebar() {
+            const isOpen = dom.sidebar.classList.contains('layout__sidebar--open');
+            
+            if (isOpen) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        }
+
+        function openSidebar() {
+            dom.sidebar.classList.add('layout__sidebar--open');
+            dom.overlay.classList.add('mobile-overlay--active');
+        }
+
+        function closeSidebar() {
+            dom.sidebar.classList.remove('layout__sidebar--open');
+            dom.overlay.classList.remove('mobile-overlay--active');
+        }
+
+        // =============================================
+        // Start Application
+        // =============================================
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
