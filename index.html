@@ -617,6 +617,10 @@
            Responsive Design
            ============================================= */
         @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+
             .layout__sidebar {
                 position: fixed;
                 left: 0;
@@ -624,10 +628,21 @@
                 height: 100%;
                 z-index: 200;
                 transform: translateX(-100%);
+                width: 90vw;
+                max-width: 320px;
             }
 
             .layout__sidebar--open {
                 transform: translateX(0);
+            }
+
+            .header {
+                height: 60px;
+                padding: 0 var(--space-md);
+            }
+
+            .header__title {
+                font-size: 1.1rem;
             }
 
             .main-content {
@@ -635,7 +650,40 @@
             }
 
             .select-grid {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: var(--space-xs);
+            }
+
+            .select-grid--wide {
+                grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            }
+
+            .option-btn {
+                padding: var(--space-sm);
+                font-size: 0.75rem;
+                min-height: 36px;
+            }
+
+            .genre-main-grid {
+                grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+                gap: var(--space-xs);
+            }
+
+            .genre-main-btn {
+                padding: var(--space-sm);
+                font-size: 0.75rem;
+                min-height: 36px;
+            }
+
+            .genre-sub-grid {
+                grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+                gap: var(--space-xs);
+            }
+
+            .genre-sub-btn {
+                padding: var(--space-sm);
+                font-size: 0.7rem;
+                min-height: 32px;
             }
 
             .templates__grid {
@@ -644,6 +692,118 @@
 
             .prompt-actions {
                 flex-direction: column;
+                gap: var(--space-sm);
+            }
+
+            .btn {
+                padding: var(--space-md);
+                font-size: 0.9rem;
+                min-height: 44px;
+            }
+
+            .prompt-display {
+                padding: var(--space-md);
+            }
+
+            .prompt-output {
+                padding: var(--space-md);
+                font-size: 0.85rem;
+                min-height: 100px;
+            }
+
+            .form-group {
+                margin-bottom: var(--space-md);
+            }
+
+            .form-group__label {
+                font-size: 0.9rem;
+            }
+
+            .form-group__description {
+                font-size: 0.75rem;
+            }
+
+            .sidebar__content {
+                padding: var(--space-md);
+            }
+
+            .sidebar__header {
+                padding: var(--space-md);
+            }
+
+            .textarea {
+                padding: var(--space-sm);
+                font-size: 0.85rem;
+            }
+
+            .template-card {
+                padding: var(--space-md);
+            }
+
+            .template-card__title {
+                font-size: 0.9rem;
+            }
+
+            .template-card__example {
+                font-size: 0.75rem;
+            }
+
+            .selected-genres {
+                padding: var(--space-sm);
+                min-height: 28px;
+            }
+
+            .genre-tag {
+                font-size: 0.65rem;
+                padding: 2px var(--space-xs);
+            }
+
+            .genre-tag-remove {
+                width: 14px;
+                height: 14px;
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .layout__sidebar {
+                width: 100vw;
+                max-width: none;
+            }
+
+            .header__title {
+                font-size: 1rem;
+            }
+
+            .select-grid {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            }
+
+            .select-grid--wide {
+                grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            }
+
+            .genre-main-grid {
+                grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+            }
+
+            .genre-sub-grid {
+                grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            }
+
+            .option-btn,
+            .genre-main-btn,
+            .genre-sub-btn {
+                font-size: 0.7rem;
+            }
+
+            .main-content {
+                padding: var(--space-sm);
+            }
+
+            .prompt-display,
+            .templates {
+                padding: var(--space-sm);
             }
         }
 
@@ -742,11 +902,16 @@
                         <button class="option-btn" data-value="smooth male vocals">スムーズ男性</button>
                         <button class="option-btn" data-value="soft female vocals">ソフト女性</button>
                         <button class="option-btn" data-value="powerful vocals">パワフル</button>
+                        <button class="option-btn" data-value="aggressive vocals">アグレッシブ</button>
+                        <button class="option-btn" data-value="gritty vocals">がなり系</button>
+                        <button class="option-btn" data-value="intense female vocals">激情女性ボーカル</button>
+                        <button class="option-btn" data-value="screaming vocals">シャウト</button>
                         <button class="option-btn" data-value="whispered vocals">ささやき声</button>
                         <button class="option-btn" data-value="harmony vocals">ハーモニー</button>
                         <button class="option-btn" data-value="duet">デュエット</button>
                         <button class="option-btn" data-value="choir vocals">コーラス</button>
                         <button class="option-btn" data-value="raspy vocals">ハスキーボイス</button>
+                        <button class="option-btn" data-value="emotional vocals">エモーショナル</button>
                     </div>
                 </div>
 
@@ -759,16 +924,46 @@
                     <div class="select-grid select-grid--wide" data-group="instruments" data-multi="true">
                         <button class="option-btn" data-value="acoustic guitar">アコースティックギター</button>
                         <button class="option-btn" data-value="electric guitar">エレキギター</button>
+                        <button class="option-btn" data-value="classical guitar">クラシックギター</button>
+                        <button class="option-btn" data-value="12-string guitar">12弦ギター</button>
                         <button class="option-btn" data-value="piano">ピアノ</button>
+                        <button class="option-btn" data-value="grand piano">グランドピアノ</button>
+                        <button class="option-btn" data-value="electric piano">エレクトリックピアノ</button>
+                        <button class="option-btn" data-value="organ">オルガン</button>
                         <button class="option-btn" data-value="synthesizers">シンセサイザー</button>
+                        <button class="option-btn" data-value="analog synthesizer">アナログシンセ</button>
                         <button class="option-btn" data-value="drums">ドラム</button>
                         <button class="option-btn" data-value="808 drums">808ドラム</button>
+                        <button class="option-btn" data-value="trap drums">トラップドラム</button>
+                        <button class="option-btn" data-value="live drums">ライブドラム</button>
                         <button class="option-btn" data-value="bass">ベース</button>
+                        <button class="option-btn" data-value="electric bass">エレクトリックベース</button>
+                        <button class="option-btn" data-value="upright bass">ウッドベース</button>
+                        <button class="option-btn" data-value="synth bass">シンセベース</button>
                         <button class="option-btn" data-value="strings">ストリングス</button>
-                        <button class="option-btn" data-value="saxophone">サックス</button>
                         <button class="option-btn" data-value="violin">バイオリン</button>
+                        <button class="option-btn" data-value="cello">チェロ</button>
+                        <button class="option-btn" data-value="viola">ビオラ</button>
+                        <button class="option-btn" data-value="double bass">コントラバス</button>
+                        <button class="option-btn" data-value="saxophone">サックス</button>
+                        <button class="option-btn" data-value="trumpet">トランペット</button>
+                        <button class="option-btn" data-value="trombone">トロンボーン</button>
+                        <button class="option-btn" data-value="flute">フルート</button>
+                        <button class="option-btn" data-value="clarinet">クラリネット</button>
+                        <button class="option-btn" data-value="harmonica">ハーモニカ</button>
+                        <button class="option-btn" data-value="harp">ハープ</button>
+                        <button class="option-btn" data-value="banjo">バンジョー</button>
+                        <button class="option-btn" data-value="mandolin">マンドリン</button>
+                        <button class="option-btn" data-value="ukulele">ウクレレ</button>
+                        <button class="option-btn" data-value="shamisen">三味線</button>
+                        <button class="option-btn" data-value="koto">琴</button>
+                        <button class="option-btn" data-value="taiko drums">太鼓</button>
+                        <button class="option-btn" data-value="gayageum">ガヤグム</button>
+                        <button class="option-btn" data-value="haegeum">ヘグム</button>
                         <button class="option-btn" data-value="electronic beats">エレクトロニック</button>
                         <button class="option-btn" data-value="ambient pads">アンビエントパッド</button>
+                        <button class="option-btn" data-value="vocal chops">ボーカルチョップ</button>
+                        <button class="option-btn" data-value="sound effects">効果音</button>
                     </div>
                 </div>
 
@@ -1065,6 +1260,32 @@
                     'Flamenco': 'フラメンコ',
                     'Celtic': 'ケルト',
                     'Indian Classical': 'インド古典音楽'
+                }
+            },
+            'J-pop': {
+                label: 'J-pop',
+                subgenres: {
+                    'City Pop': 'シティポップ',
+                    'Shibuya-kei': '渋谷系',
+                    'Visual Kei': 'ヴィジュアル系',
+                    'Kawaii Metal': 'カワイイメタル',
+                    'J-Rock': 'J-ロック',
+                    'Enka': '演歌',
+                    'Anime Song': 'アニメソング',
+                    'Idol Pop': 'アイドルポップ'
+                }
+            },
+            'K-pop': {
+                label: 'K-pop',
+                subgenres: {
+                    'Girl Group': 'ガールグループ',
+                    'Boy Group': 'ボーイグループ',
+                    'K-R&B': 'K-R&B',
+                    'K-Hip Hop': 'K-ヒップホップ',
+                    'K-Indie': 'K-インディー',
+                    'K-Ballad': 'K-バラード',
+                    'Trot': 'トロット',
+                    'Korean Folk': '韓国フォーク'
                 }
             }
         };
