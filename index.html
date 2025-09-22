@@ -66,6 +66,101 @@
             overflow: hidden;
         }
 
+        .shooting-stars {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+            flex: 0 0 auto;
+        }
+
+        .shooting-star {
+            position: absolute;
+            display: block;
+            width: 160px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+            opacity: 0;
+            filter: drop-shadow(0 0 12px rgba(77, 243, 255, 0.75));
+            transform: rotate(20deg);
+            animation: shooting-star 6s linear infinite;
+        }
+
+        .shooting-star::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -2px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 14px rgba(77, 243, 255, 0.9);
+        }
+
+        .shooting-star:nth-child(1) {
+            top: 12%;
+            left: -15%;
+            animation-duration: 7s;
+            animation-delay: 0s;
+        }
+
+        .shooting-star:nth-child(2) {
+            top: 26%;
+            left: -25%;
+            animation-duration: 8s;
+            animation-delay: 2.5s;
+        }
+
+        .shooting-star:nth-child(3) {
+            top: 40%;
+            left: -10%;
+            animation-duration: 6.5s;
+            animation-delay: 4.5s;
+        }
+
+        .shooting-star:nth-child(4) {
+            top: 58%;
+            left: -20%;
+            animation-duration: 7.8s;
+            animation-delay: 6.8s;
+        }
+
+        .shooting-star:nth-child(5) {
+            top: 70%;
+            left: -18%;
+            animation-duration: 9s;
+            animation-delay: 3.2s;
+        }
+
+        .shooting-star:nth-child(6) {
+            top: 84%;
+            left: -30%;
+            animation-duration: 8.6s;
+            animation-delay: 7.5s;
+        }
+
+        @keyframes shooting-star {
+            0% {
+                transform: translate3d(-20vw, 0, 0) rotate(20deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 0;
+            }
+            100% {
+                transform: translate3d(110vw, 0, 0) rotate(20deg);
+                opacity: 0;
+            }
+        }
+
         /* =============================================
            Layout Components
            ============================================= */
@@ -73,6 +168,8 @@
             display: flex;
             width: 100%;
             height: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .layout__sidebar {
@@ -178,6 +275,37 @@
 
         .select-grid--wide {
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+
+        .select-section {
+            margin-bottom: var(--space-md);
+        }
+
+        .select-section:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .select-section__title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-text-muted);
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-xs);
+        }
+
+        .instrument-category-grid {
+            margin-bottom: var(--space-md);
+        }
+
+        .instrument-category-btn--has-selection::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-secondary);
         }
 
         .option-btn {
@@ -858,6 +986,14 @@
     </style>
 </head>
 <body>
+    <div class="shooting-stars">
+        <span class="shooting-star"></span>
+        <span class="shooting-star"></span>
+        <span class="shooting-star"></span>
+        <span class="shooting-star"></span>
+        <span class="shooting-star"></span>
+        <span class="shooting-star"></span>
+    </div>
     <div class="layout">
         <!-- Sidebar -->
         <aside class="layout__sidebar" id="sidebar">
@@ -894,24 +1030,35 @@
                 <div class="form-group">
                     <label class="form-group__label">ボーカル</label>
                     <div class="form-group__description">
-                        歌声のタイプと性別を指定
+                        歌声のタイプと表現を指定してください
                     </div>
-                    <div class="select-grid" data-group="vocals">
-                        <button class="option-btn" data-value="male vocals">男性ボーカル</button>
-                        <button class="option-btn" data-value="female vocals">女性ボーカル</button>
-                        <button class="option-btn" data-value="smooth male vocals">スムーズ男性</button>
-                        <button class="option-btn" data-value="soft female vocals">ソフト女性</button>
-                        <button class="option-btn" data-value="powerful vocals">パワフル</button>
-                        <button class="option-btn" data-value="aggressive vocals">アグレッシブ</button>
-                        <button class="option-btn" data-value="gritty vocals">がなり系</button>
-                        <button class="option-btn" data-value="intense female vocals">激情女性ボーカル</button>
-                        <button class="option-btn" data-value="screaming vocals">シャウト</button>
-                        <button class="option-btn" data-value="whispered vocals">ささやき声</button>
-                        <button class="option-btn" data-value="harmony vocals">ハーモニー</button>
-                        <button class="option-btn" data-value="duet">デュエット</button>
-                        <button class="option-btn" data-value="choir vocals">コーラス</button>
-                        <button class="option-btn" data-value="raspy vocals">ハスキーボイス</button>
-                        <button class="option-btn" data-value="emotional vocals">エモーショナル</button>
+
+                    <div class="select-section">
+                        <div class="select-section__title">ボーカルタイプ</div>
+                        <div class="select-grid" data-group="vocalGender">
+                            <button class="option-btn" data-value="male">男性</button>
+                            <button class="option-btn" data-value="female">女性</button>
+                            <button class="option-btn" data-value="unisex">ユニセックス</button>
+                        </div>
+                    </div>
+
+                    <div class="select-section">
+                        <div class="select-section__title">ボーカルキャラクター</div>
+                        <div class="select-grid" data-group="vocalStyles" data-multi="true">
+                            <button class="option-btn" data-value="soft">ソフト</button>
+                            <button class="option-btn" data-value="smooth">スムース</button>
+                            <button class="option-btn" data-value="powerful">パワフル</button>
+                            <button class="option-btn" data-value="aggressive">アグレッシブ</button>
+                            <button class="option-btn" data-value="gritty">がなり系</button>
+                            <button class="option-btn" data-value="intense">激しい</button>
+                            <button class="option-btn" data-value="screaming">シャウト</button>
+                            <button class="option-btn" data-value="whispered">ささやき</button>
+                            <button class="option-btn" data-value="harmony">ハーモニー</button>
+                            <button class="option-btn" data-value="duet">デュエット</button>
+                            <button class="option-btn" data-value="choir">コーラス</button>
+                            <button class="option-btn" data-value="raspy">ハスキー</button>
+                            <button class="option-btn" data-value="emotional">エモーショナル</button>
+                        </div>
                     </div>
                 </div>
 
@@ -919,52 +1066,20 @@
                 <div class="form-group">
                     <label class="form-group__label">楽器編成</label>
                     <div class="form-group__description">
-                        主要楽器を2-3つ選択（推奨）
+                        主要楽器をカテゴリーから選択（最大3つ推奨）
                     </div>
-                    <div class="select-grid select-grid--wide" data-group="instruments" data-multi="true">
-                        <button class="option-btn" data-value="acoustic guitar">アコースティックギター</button>
-                        <button class="option-btn" data-value="electric guitar">エレキギター</button>
-                        <button class="option-btn" data-value="classical guitar">クラシックギター</button>
-                        <button class="option-btn" data-value="12-string guitar">12弦ギター</button>
-                        <button class="option-btn" data-value="piano">ピアノ</button>
-                        <button class="option-btn" data-value="grand piano">グランドピアノ</button>
-                        <button class="option-btn" data-value="electric piano">エレクトリックピアノ</button>
-                        <button class="option-btn" data-value="organ">オルガン</button>
-                        <button class="option-btn" data-value="synthesizers">シンセサイザー</button>
-                        <button class="option-btn" data-value="analog synthesizer">アナログシンセ</button>
-                        <button class="option-btn" data-value="drums">ドラム</button>
-                        <button class="option-btn" data-value="808 drums">808ドラム</button>
-                        <button class="option-btn" data-value="trap drums">トラップドラム</button>
-                        <button class="option-btn" data-value="live drums">ライブドラム</button>
-                        <button class="option-btn" data-value="bass">ベース</button>
-                        <button class="option-btn" data-value="electric bass">エレクトリックベース</button>
-                        <button class="option-btn" data-value="upright bass">ウッドベース</button>
-                        <button class="option-btn" data-value="synth bass">シンセベース</button>
-                        <button class="option-btn" data-value="strings">ストリングス</button>
-                        <button class="option-btn" data-value="violin">バイオリン</button>
-                        <button class="option-btn" data-value="cello">チェロ</button>
-                        <button class="option-btn" data-value="viola">ビオラ</button>
-                        <button class="option-btn" data-value="double bass">コントラバス</button>
-                        <button class="option-btn" data-value="saxophone">サックス</button>
-                        <button class="option-btn" data-value="trumpet">トランペット</button>
-                        <button class="option-btn" data-value="trombone">トロンボーン</button>
-                        <button class="option-btn" data-value="flute">フルート</button>
-                        <button class="option-btn" data-value="clarinet">クラリネット</button>
-                        <button class="option-btn" data-value="harmonica">ハーモニカ</button>
-                        <button class="option-btn" data-value="harp">ハープ</button>
-                        <button class="option-btn" data-value="banjo">バンジョー</button>
-                        <button class="option-btn" data-value="mandolin">マンドリン</button>
-                        <button class="option-btn" data-value="ukulele">ウクレレ</button>
-                        <button class="option-btn" data-value="shamisen">三味線</button>
-                        <button class="option-btn" data-value="koto">琴</button>
-                        <button class="option-btn" data-value="taiko drums">太鼓</button>
-                        <button class="option-btn" data-value="gayageum">ガヤグム</button>
-                        <button class="option-btn" data-value="haegeum">ヘグム</button>
-                        <button class="option-btn" data-value="electronic beats">エレクトロニック</button>
-                        <button class="option-btn" data-value="ambient pads">アンビエントパッド</button>
-                        <button class="option-btn" data-value="vocal chops">ボーカルチョップ</button>
-                        <button class="option-btn" data-value="sound effects">効果音</button>
+
+                    <div class="genre-main-grid instrument-category-grid" id="instrumentCategoryGrid"></div>
+
+                    <div class="genre-sub-section hidden" id="instrumentSubSection">
+                        <div class="genre-sub-header">
+                            <span class="genre-sub-title" id="instrumentSubTitle"></span>
+                            <button class="btn-genre-clear" id="clearInstrumentBtn">×</button>
+                        </div>
+                        <div class="select-grid select-grid--wide" data-group="instruments" data-multi="true" id="instrumentSubGrid"></div>
                     </div>
+
+                    <div class="selected-genres" id="selectedInstruments"></div>
                 </div>
 
                 <!-- Mood -->
@@ -1290,13 +1405,104 @@
             }
         };
 
+        const INSTRUMENT_STRUCTURE = {
+            guitars: {
+                label: 'ギター/撥弦楽器',
+                instruments: {
+                    'acoustic guitar': 'アコースティックギター',
+                    'electric guitar': 'エレキギター',
+                    'classical guitar': 'クラシックギター',
+                    '12-string guitar': '12弦ギター',
+                    'banjo': 'バンジョー',
+                    'mandolin': 'マンドリン',
+                    'ukulele': 'ウクレレ'
+                }
+            },
+            keys: {
+                label: '鍵盤楽器',
+                instruments: {
+                    'piano': 'ピアノ',
+                    'grand piano': 'グランドピアノ',
+                    'electric piano': 'エレクトリックピアノ',
+                    'organ': 'オルガン'
+                }
+            },
+            synths: {
+                label: 'シンセ/電子音',
+                instruments: {
+                    'synthesizers': 'シンセサイザー',
+                    'analog synthesizer': 'アナログシンセ',
+                    'ambient pads': 'アンビエントパッド',
+                    'electronic beats': 'エレクトロニックビート'
+                }
+            },
+            drums: {
+                label: 'ドラム/パーカッション',
+                instruments: {
+                    'drums': 'ドラム',
+                    '808 drums': '808ドラム',
+                    'trap drums': 'トラップドラム',
+                    'live drums': 'ライブドラム',
+                    'taiko drums': '太鼓'
+                }
+            },
+            bass: {
+                label: 'ベース',
+                instruments: {
+                    'bass': 'ベース',
+                    'electric bass': 'エレクトリックベース',
+                    'upright bass': 'ウッドベース',
+                    'synth bass': 'シンセベース'
+                }
+            },
+            strings: {
+                label: 'ストリングス',
+                instruments: {
+                    'strings': 'ストリングス',
+                    'violin': 'バイオリン',
+                    'viola': 'ビオラ',
+                    'cello': 'チェロ',
+                    'double bass': 'コントラバス',
+                    'harp': 'ハープ'
+                }
+            },
+            brass: {
+                label: '管楽器',
+                instruments: {
+                    'saxophone': 'サックス',
+                    'trumpet': 'トランペット',
+                    'trombone': 'トロンボーン',
+                    'flute': 'フルート',
+                    'clarinet': 'クラリネット',
+                    'harmonica': 'ハーモニカ'
+                }
+            },
+            world: {
+                label: '民族楽器',
+                instruments: {
+                    'shamisen': '三味線',
+                    'koto': '琴',
+                    'gayageum': 'ガヤグム',
+                    'haegeum': 'ヘグム'
+                }
+            },
+            vocalsFx: {
+                label: 'ボーカル加工/FX',
+                instruments: {
+                    'vocal chops': 'ボーカルチョップ',
+                    'sound effects': '効果音'
+                }
+            }
+        };
+
         const TEMPLATES = [
             {
                 title: "ポップバラード",
                 example: "Dream Pop ballad, tender female vocals, soft piano and strings, intimate and heartfelt, 3 minute, 75",
                 selections: {
                     genres: ["Dream Pop"],
-                    vocals: "soft female vocals",
+                    vocalGender: "female",
+                    vocalStyles: ["soft"],
                     instruments: ["piano", "strings"],
                     mood: "romantic",
                     length: "3 minute",
@@ -1309,7 +1515,8 @@
                 example: "House Electronic, powerful female vocals, 808 drums and synthesizers, euphoric and energetic, 128",
                 selections: {
                     genres: ["House"],
-                    vocals: "powerful vocals",
+                    vocalGender: "female",
+                    vocalStyles: ["powerful"],
                     instruments: ["808 drums", "synthesizers"],
                     mood: "euphoric",
                     bpm: "128",
@@ -1321,7 +1528,8 @@
                 example: "Indie Folk, soft male vocals, acoustic guitar, nostalgic and dreamy, 85",
                 selections: {
                     genres: ["Indie Folk"],
-                    vocals: "smooth male vocals", 
+                    vocalGender: "male",
+                    vocalStyles: ["smooth"], 
                     instruments: ["acoustic guitar"],
                     mood: "nostalgic",
                     bpm: "85",
@@ -1333,7 +1541,8 @@
                 example: "Hardcore Punk, aggressive male vocals, electric guitar and drums, energetic and rebellious, 140",
                 selections: {
                     genres: ["Hardcore"],
-                    vocals: "male vocals",
+                    vocalGender: "male",
+                    vocalStyles: [],
                     instruments: ["electric guitar", "drums"],
                     mood: "energetic",
                     bpm: "140",
@@ -1345,7 +1554,8 @@
                 example: "Metalcore, powerful screaming vocals, electric guitar and 808 drums, dark and intense, 130",
                 selections: {
                     genres: ["Metalcore"],
-                    vocals: "powerful vocals",
+                    vocalGender: null,
+                    vocalStyles: ["powerful", "screaming"],
                     instruments: ["electric guitar", "808 drums"],
                     mood: "dark",
                     bpm: "130",
@@ -1357,7 +1567,8 @@
                 example: "Eurodance, euphoric female vocals, synthesizers and electronic beats, uplifting and energetic, 128",
                 selections: {
                     genres: ["Eurodance"],
-                    vocals: "female vocals",
+                    vocalGender: "female",
+                    vocalStyles: [],
                     instruments: ["synthesizers", "electronic beats"],
                     mood: "euphoric",
                     bpm: "128",
@@ -1372,6 +1583,8 @@
         const state = {
             selections: {
                 genres: [], // Changed from genre to genres array
+                vocalGender: null,
+                vocalStyles: [],
                 vocals: null,
                 instruments: [],
                 mood: null,
@@ -1382,6 +1595,9 @@
             genreState: {
                 activeMainGenre: null,
                 selectedSubGenres: []
+            },
+            instrumentState: {
+                activeCategory: null
             },
             customText: ''
         };
@@ -1407,7 +1623,14 @@
             subGenreTitle: document.getElementById('subGenreTitle'),
             subGenreGrid: document.getElementById('subGenreGrid'),
             clearGenreBtn: document.getElementById('clearGenreBtn'),
-            selectedGenres: document.getElementById('selectedGenres')
+            selectedGenres: document.getElementById('selectedGenres'),
+            // Instrument elements
+            instrumentCategoryGrid: document.getElementById('instrumentCategoryGrid'),
+            instrumentSubSection: document.getElementById('instrumentSubSection'),
+            instrumentSubTitle: document.getElementById('instrumentSubTitle'),
+            instrumentSubGrid: document.getElementById('instrumentSubGrid'),
+            clearInstrumentBtn: document.getElementById('clearInstrumentBtn'),
+            selectedInstruments: document.getElementById('selectedInstruments')
         };
 
         // =============================================
@@ -1417,6 +1640,8 @@
             setupEventListeners();
             renderTemplates();
             renderMainGenres();
+            renderInstrumentCategories();
+            updateInstrumentSelectionDisplay();
             updatePrompt();
             handleResize();
         }
@@ -1431,6 +1656,10 @@
             dom.mainGenreGrid.addEventListener('click', handleMainGenreClick);
             dom.subGenreGrid.addEventListener('click', handleSubGenreClick);
             dom.clearGenreBtn?.addEventListener('click', clearGenreSelection);
+
+            // Instrument events
+            dom.instrumentCategoryGrid.addEventListener('click', handleInstrumentCategoryClick);
+            dom.clearInstrumentBtn?.addEventListener('click', handleInstrumentClear);
 
             // Custom text
             dom.customText.addEventListener('input', handleCustomText);
@@ -1478,7 +1707,37 @@
                 state.selections[groupName] = value;
             }
 
+            if (groupName === 'vocalGender' || groupName === 'vocalStyles') {
+                updateVocalSelection();
+            }
+
+            if (groupName === 'instruments') {
+                updateInstrumentSelectionDisplay();
+                renderInstrumentCategories();
+            }
+
             updatePrompt();
+        }
+
+        function updateVocalSelection() {
+            const gender = state.selections.vocalGender;
+            const styles = state.selections.vocalStyles || [];
+
+            let styleText = '';
+            if (styles.length === 1) {
+                styleText = styles[0];
+            } else if (styles.length === 2) {
+                styleText = styles.join(' and ');
+            } else if (styles.length > 2) {
+                const leading = styles.slice(0, -1).join(', ');
+                styleText = leading + ' and ' + styles[styles.length - 1];
+            }
+
+            const parts = [];
+            if (styleText) parts.push(styleText);
+            if (gender) parts.push(gender);
+
+            state.selections.vocals = parts.length ? parts.join(' ') + ' vocals' : null;
         }
 
         function handleCustomText(e) {
@@ -1588,6 +1847,160 @@
 
         function updateGenresSelection() {
             state.selections.genres = [...state.genreState.selectedSubGenres];
+        }
+
+        function renderInstrumentCategories() {
+            if (!dom.instrumentCategoryGrid) return;
+
+            dom.instrumentCategoryGrid.innerHTML = '';
+
+            Object.entries(INSTRUMENT_STRUCTURE).forEach(([categoryKey, categoryData]) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'genre-main-btn instrument-category-btn';
+                btn.dataset.category = categoryKey;
+                btn.textContent = categoryData.label;
+
+                if (state.instrumentState.activeCategory === categoryKey) {
+                    btn.classList.add('genre-main-btn--active');
+                }
+
+                const hasSelection = state.selections.instruments.some(instrument =>
+                    Object.prototype.hasOwnProperty.call(categoryData.instruments, instrument)
+                );
+
+                if (hasSelection) {
+                    btn.classList.add('instrument-category-btn--has-selection');
+                }
+
+                dom.instrumentCategoryGrid.appendChild(btn);
+            });
+        }
+
+        function handleInstrumentCategoryClick(e) {
+            const btn = e.target.closest('.instrument-category-btn');
+            if (!btn) return;
+
+            const categoryKey = btn.dataset.category;
+
+            if (state.instrumentState.activeCategory === categoryKey) {
+                state.instrumentState.activeCategory = null;
+                dom.instrumentSubSection.classList.add('hidden');
+                dom.instrumentSubTitle.textContent = '';
+                dom.instrumentSubGrid.innerHTML = '';
+            } else {
+                state.instrumentState.activeCategory = categoryKey;
+                renderInstrumentButtons(categoryKey);
+            }
+
+            renderInstrumentCategories();
+        }
+
+        function renderInstrumentButtons(categoryKey) {
+            const categoryData = INSTRUMENT_STRUCTURE[categoryKey];
+            if (!categoryData) return;
+
+            dom.instrumentSubGrid.innerHTML = '';
+            dom.instrumentSubTitle.textContent = categoryData.label;
+
+            Object.entries(categoryData.instruments).forEach(([instrumentKey, instrumentLabel]) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'option-btn';
+                btn.dataset.value = instrumentKey;
+                btn.textContent = instrumentLabel;
+
+                if (state.selections.instruments.includes(instrumentKey)) {
+                    btn.classList.add('option-btn--active');
+                }
+
+                dom.instrumentSubGrid.appendChild(btn);
+            });
+
+            dom.instrumentSubSection.classList.remove('hidden');
+        }
+
+        function updateInstrumentSelectionDisplay() {
+            if (!dom.selectedInstruments) return;
+
+            dom.selectedInstruments.innerHTML = '';
+
+            state.selections.instruments.forEach(instrumentKey => {
+                const tag = document.createElement('div');
+                tag.className = 'genre-tag';
+
+                const label = getInstrumentLabel(instrumentKey);
+                const labelSpan = document.createElement('span');
+                labelSpan.textContent = label;
+                tag.appendChild(labelSpan);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'genre-tag-remove';
+                removeBtn.dataset.removeInstrument = instrumentKey;
+                removeBtn.textContent = '×';
+                removeBtn.addEventListener('click', () => removeInstrumentTag(instrumentKey));
+
+                tag.appendChild(removeBtn);
+                dom.selectedInstruments.appendChild(tag);
+            });
+        }
+
+        function removeInstrumentTag(instrumentKey) {
+            state.selections.instruments = state.selections.instruments.filter(item => item !== instrumentKey);
+
+            const selector = '[data-group="instruments"] [data-value="' + instrumentKey + '"]';
+            const activeButton = document.querySelector(selector);
+            if (activeButton) {
+                activeButton.classList.remove('option-btn--active');
+            }
+
+            updateInstrumentSelectionDisplay();
+            renderInstrumentCategories();
+            updatePrompt();
+        }
+
+        function clearInstrumentSelection() {
+            state.selections.instruments = [];
+            state.instrumentState.activeCategory = null;
+
+            if (dom.instrumentSubGrid) {
+                dom.instrumentSubGrid.innerHTML = '';
+            }
+
+            if (dom.instrumentSubSection) {
+                dom.instrumentSubSection.classList.add('hidden');
+            }
+
+            if (dom.instrumentSubTitle) {
+                dom.instrumentSubTitle.textContent = '';
+            }
+
+            updateInstrumentSelectionDisplay();
+            renderInstrumentCategories();
+        }
+
+        function findInstrumentCategory(instrumentKey) {
+            for (const [categoryKey, categoryData] of Object.entries(INSTRUMENT_STRUCTURE)) {
+                if (Object.prototype.hasOwnProperty.call(categoryData.instruments, instrumentKey)) {
+                    return categoryKey;
+                }
+            }
+            return null;
+        }
+
+        function getInstrumentLabel(instrumentKey) {
+            for (const categoryData of Object.values(INSTRUMENT_STRUCTURE)) {
+                if (Object.prototype.hasOwnProperty.call(categoryData.instruments, instrumentKey)) {
+                    return categoryData.instruments[instrumentKey];
+                }
+            }
+            return instrumentKey;
+        }
+
+        function handleInstrumentClear() {
+            clearInstrumentSelection();
+            updatePrompt();
         }
 
         function updateSelectedGenresDisplay() {
@@ -1805,6 +2218,8 @@
             // Reset state
             state.selections = {
                 genres: [],
+                vocalGender: null,
+                vocalStyles: [],
                 vocals: null,
                 instruments: [],
                 mood: null,
@@ -1839,20 +2254,55 @@
                     updateSelectedGenresDisplay();
                     
                 } else if (key === 'instruments' && Array.isArray(value)) {
-                    // Instruments
-                    state.selections[key] = [...value];
-                    value.forEach(instrument => {
-                        const btn = document.querySelector(`[data-group="${key}"] [data-value="${instrument}"]`);
+                    state.selections.instruments = [...value];
+                } else if (key === 'vocalStyles' && Array.isArray(value)) {
+                    state.selections.vocalStyles = [...value];
+                    const group = document.querySelector('[data-group="vocalStyles"]');
+                    if (group) {
+                        value.forEach(style => {
+                            const btn = group.querySelector('[data-value="' + style + '"]');
+                            if (btn) btn.classList.add('option-btn--active');
+                        });
+                    }
+                } else if (key === 'vocalGender') {
+                    state.selections.vocalGender = value;
+                    if (value) {
+                        const selector = '[data-group="vocalGender"] [data-value="' + value + '"]';
+                        const btn = document.querySelector(selector);
                         if (btn) btn.classList.add('option-btn--active');
-                    });
+                    }
                 } else if (key !== 'genres') {
                     // Single values (excluding genres)
                     state.selections[key] = value;
-                    const btn = document.querySelector(`[data-group="${key}"] [data-value="${value}"]`);
+                    const selector = '[data-group="' + key + '"] [data-value="' + value + '"]';
+                    const btn = document.querySelector(selector);
                     if (btn) btn.classList.add('option-btn--active');
                 }
             });
 
+            const firstInstrumentCategory = state.selections.instruments
+                .map(findInstrumentCategory)
+                .find(category => category);
+
+            if (firstInstrumentCategory) {
+                state.instrumentState.activeCategory = firstInstrumentCategory;
+                renderInstrumentButtons(firstInstrumentCategory);
+            } else {
+                state.instrumentState.activeCategory = null;
+                if (dom.instrumentSubSection) {
+                    dom.instrumentSubSection.classList.add('hidden');
+                }
+                if (dom.instrumentSubGrid) {
+                    dom.instrumentSubGrid.innerHTML = '';
+                }
+                if (dom.instrumentSubTitle) {
+                    dom.instrumentSubTitle.textContent = '';
+                }
+            }
+
+            renderInstrumentCategories();
+            updateInstrumentSelectionDisplay();
+            updateVocalSelection();
             updatePrompt();
             
             // Add visual feedback
@@ -2012,6 +2462,8 @@
             // Clear state
             state.selections = {
                 genres: [],
+                vocalGender: null,
+                vocalStyles: [],
                 vocals: null,
                 instruments: [],
                 mood: null,
@@ -2020,11 +2472,16 @@
                 production: null
             };
             state.customText = '';
+            state.instrumentState = {
+                activeCategory: null
+            };
 
             // Clear custom text
             dom.customText.value = '';
             dom.customWarning.classList.add('hidden');
 
+            clearInstrumentSelection();
+            updateVocalSelection();
             updatePrompt();
         }
 
