@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI Music Prompt Generator - 簡単にプロ級のSunoプロンプトを作成">
+    <meta name="description" content="AI Music Prompt Generator - 簡単にプロ級のMusic Generatorプロンプトを作成">
     <title>AI Music プロンプトジェネレーター</title>
     
     <style>
@@ -225,6 +225,10 @@
         .sidebar__header {
             padding: var(--space-xl) var(--space-lg);
             border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-lg);
         }
 
         .sidebar__logo {
@@ -239,10 +243,25 @@
             color: var(--color-text-muted);
         }
 
+        .sidebar__close {
+            display: none;
+        }
+
         .sidebar__content {
             flex: 1;
             padding: var(--space-lg);
             overflow-y: auto;
+        }
+
+        .sidebar__footer {
+            padding: var(--space-lg);
+            border-top: 1px solid var(--color-border);
+            background: var(--color-surface);
+        }
+
+        .sidebar__cta {
+            width: 100%;
+            justify-content: center;
         }
 
         /* =============================================
@@ -758,10 +777,16 @@
                 transform: translateX(-100%);
                 width: 90vw;
                 max-width: 320px;
+                padding-bottom: var(--space-xl);
             }
 
             .layout__sidebar--open {
                 transform: translateX(0);
+            }
+
+            .sidebar__close {
+                display: inline-flex;
+                align-self: flex-start;
             }
 
             .header {
@@ -891,6 +916,18 @@
                 height: 14px;
                 font-size: 10px;
             }
+
+            .sidebar__content {
+                padding-bottom: calc(var(--space-xl) * 2);
+            }
+
+            .sidebar__footer {
+                position: sticky;
+                bottom: 0;
+                background: var(--color-surface);
+                padding: var(--space-md);
+                padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom, 0));
+            }
         }
 
         @media (max-width: 480px) {
@@ -998,8 +1035,15 @@
         <!-- Sidebar -->
         <aside class="layout__sidebar" id="sidebar">
             <div class="sidebar__header">
-                <div class="sidebar__logo">🎵 music generate AI</div>
-                <div class="sidebar__subtitle">プロンプトジェネレーター</div>
+                <div>
+                    <div class="sidebar__logo">🎵 Music Generator</div>
+                    <div class="sidebar__subtitle">プロンプトジェネレーター</div>
+                </div>
+                <button class="btn btn--secondary sidebar__close" id="closeSidebarBtn" aria-label="メニューを閉じる">
+                    <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
             
             <div class="sidebar__content">
@@ -1125,7 +1169,7 @@
                 <div class="form-group">
                     <label class="form-group__label">楽曲の長さ</label>
                     <div class="form-group__description">
-                        楽曲の長さを指定（Suno AIは最大8分まで対応）
+                        楽曲の長さを指定（Music Generatorは最大8分まで対応）
                     </div>
                     <div class="select-grid" data-group="length">
                         <button class="option-btn" data-value="short 30 second">ショート (30秒)</button>
@@ -1183,6 +1227,16 @@
                     </button>
                 </div>
             </div>
+
+            <div class="sidebar__footer">
+                <button class="btn btn--primary sidebar__cta" id="goToPromptBtn">
+                    <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14"/>
+                        <path d="M13 6l6 6-6 6"/>
+                    </svg>
+                    プロンプト画面へ
+                </button>
+            </div>
         </aside>
 
         <!-- Mobile Overlay -->
@@ -1198,7 +1252,7 @@
                     </svg>
                     メニュー
                 </button>
-                <h1 class="header__title">Suno AI プロンプトジェネレーター</h1>
+                <h1 class="header__title">Music Generator プロンプトジェネレーター</h1>
                 <div class="header__actions">
                     <div class="prompt-display__counter" id="charCounter">0/200文字</div>
                 </div>
@@ -1630,7 +1684,9 @@
             instrumentSubTitle: document.getElementById('instrumentSubTitle'),
             instrumentSubGrid: document.getElementById('instrumentSubGrid'),
             clearInstrumentBtn: document.getElementById('clearInstrumentBtn'),
-            selectedInstruments: document.getElementById('selectedInstruments')
+            selectedInstruments: document.getElementById('selectedInstruments'),
+            closeSidebarBtn: document.getElementById('closeSidebarBtn'),
+            goToPromptBtn: document.getElementById('goToPromptBtn')
         };
 
         // =============================================
@@ -1672,6 +1728,8 @@
             // Mobile menu
             dom.menuToggle?.addEventListener('click', toggleSidebar);
             dom.overlay.addEventListener('click', closeSidebar);
+            dom.closeSidebarBtn?.addEventListener('click', closeSidebar);
+            dom.goToPromptBtn?.addEventListener('click', handleGoToPrompt);
 
             // Window resize
             window.addEventListener('resize', handleResize);
@@ -2442,7 +2500,7 @@
             
             const a = document.createElement('a');
             a.href = url;
-            a.download = `suno-prompt-${Date.now()}.txt`;
+            a.download = `music-generator-prompt-${Date.now()}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2538,6 +2596,17 @@
         function closeSidebar() {
             dom.sidebar.classList.remove('layout__sidebar--open');
             dom.overlay.classList.remove('mobile-overlay--active');
+        }
+
+        function handleGoToPrompt() {
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
+
+            requestAnimationFrame(() => {
+                const target = dom.promptOutput?.closest('.prompt-display') || dom.promptOutput;
+                target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
         }
 
         // =============================================
